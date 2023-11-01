@@ -17,6 +17,7 @@ train_file = "annotations/train_det_data.json"
 val_file = "annotations/val_det_data.json"
 img_prefix = "images/"
 classes = ("slagcar", "excavator", "bulldozer", "soilcompactor")
+
 # change the dataset setting
 train_dataloader = dict(
     dataset=dict(
@@ -44,6 +45,9 @@ test_evaluator = val_evaluator
 
 # validate every 2 epoch
 train_cfg = dict(val_interval=2)
+
+# adjust the hooks
+default_hooks = dict(checkpoint=dict(type='CheckpointHook', interval=4))
 
 # load pre-trained model weights
 load_from = work_dir + "retinanet_r50_fpn_2x_coco_20200131-fdb43119.pth"
