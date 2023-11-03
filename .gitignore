@@ -1,8 +1,8 @@
 /demo
 /retinanet_r50_fpn_2x_truck_*
-/dataset/images
-/dataset/*_images
-/dataset/labels
+/Dataset/images
+/Dataset/*_images
+/Dataset/labels
 /__pycache__
 
 *.pth

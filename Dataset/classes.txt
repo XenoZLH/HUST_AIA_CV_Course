@@ -1,0 +1,4 @@
+slagcar
+excavator
+bulldozer
+soilcompactor
