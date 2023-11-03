@@ -1,0 +1,10 @@
+/demo
+/retinanet_r50_fpn_2x_truck_*
+/dataset/images
+/dataset/*_images
+/dataset/labels
+/__pycache__
+
+*.pth
+
+draw_box.py

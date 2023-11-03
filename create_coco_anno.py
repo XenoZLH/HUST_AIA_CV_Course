@@ -135,10 +135,135 @@ def split_train_val_data(filename: str) -> None:
         print("val set saved!")
 
 
+def rename_files(dirpath: str, augtype="h"):
+    filelist = os.listdir(dirpath)
+    for file in filelist:
+        [old_name, file_type] = file.split(".")
+        new_name = old_name + "_" + augtype
+        print(f"rename {old_name} to {new_name}")
+        os.rename(os.path.join(dirpath, file), os.path.join(dirpath, new_name + "." + file_type))
+
+
+def pick_flip_images(base_file, horizon_file, vertical_file):
+    with open(base_file) as f:
+        base_det_data = json.load(f)
+    with open(horizon_file) as f:
+        horizon_data = json.load(f)
+    with open(vertical_file) as f:
+        vertical_data = json.load(f)
+    # change the ids of horizon data
+    for img in horizon_data["images"]:
+        img['id'] += 291
+    for item in horizon_data["annotations"]:
+        item["image_id"] += 291
+        item["id"] += 1527
+    # change the ids of vertical data
+    for img in vertical_data["images"]:
+        img['id'] += 582
+    for item in vertical_data["annotations"]:
+        item["image_id"] += 582
+        item["id"] += 3054
+    # collect names of train images
+    train_img_names = []
+    for img in base_det_data["images"]:
+        train_img_names.append(img["file_name"].split(".")[0])
+    # pick the horizon images
+    horizon_img_ids = []
+    for img in horizon_data["images"]:
+        img_name = img["file_name"].split(".")[0]
+        img_name = img_name.split("_h")[0]
+        if img_name in train_img_names:
+            base_det_data["images"].append(img)
+            horizon_img_ids.append(img["id"])
+            print(f"{img_name} picked and saved to base_det_data.")
+    # pick the horizon annotations
+    for item in horizon_data["annotations"]:
+        if item["image_id"] in horizon_img_ids:
+            base_det_data["annotations"].append(item)
+            print(f"annotation:{item['id']} picked and saved to base_det_data.")
+    # pick the vertical images
+    vertical_img_ids = []
+    for img in vertical_data["images"]:
+        img_name = img["file_name"].split(".")[0]
+        img_name = img_name.split("_v")[0]
+        if img_name in train_img_names:
+            base_det_data["images"].append(img)
+            vertical_img_ids.append(img["id"])
+            print(f"{img_name} picked and saved to base_det_data.")
+    # pick the vertical annotations
+    for item in vertical_data["annotations"]:
+        if item["image_id"] in vertical_img_ids:
+            base_det_data["annotations"].append(item)
+            print(f"annotation:{item['id']} picked and saved to base_det_data.")
+    # save the augmented train data
+    augmented_train_file = "/share/zlh/cv_task/annotations/aug_train_det_data.json"
+    with open(augmented_train_file, "w") as f:
+        json.dump(base_det_data, f)
+        print(f"{augmented_train_file} saved.")
+    # save the horizon data with new ids
+    horizon_file = "/share/zlh/cv_task_hor/horizon_det_data.json"
+    with open(horizon_file, "w") as f:
+        json.dump(horizon_data, f)
+        print(f"{horizon_file} saved.")
+    # save the vertical data with new ids
+    vertical_file = "/share/zlh/cv_task_ver/vertical_det_data.json"
+    with open(vertical_file, "w") as f:
+        json.dump(vertical_data, f)
+        print(f"{vertical_file} saved.")
+
+
+def pick_flip_test_images(base_train_file, base_val_file, horizon_file, vertical_file):
+    with open(base_train_file) as f:
+        base_train_data = json.load(f)
+    with open(base_val_file) as f:
+        base_val_data = json.load(f)
+    with open(horizon_file) as f:
+        horizon_data = json.load(f)
+    with open(vertical_file) as f:
+        vertical_data = json.load(f)
+    # collect names of train images
+    train_img_names = []
+    for img in base_train_data["images"]:
+        train_img_names.append(img["file_name"].split(".")[0])
+    # pick the horizon images
+    horizon_img_ids = []
+    for img in horizon_data["images"]:
+        img_name = img["file_name"].split(".")[0]
+        img_name = img_name.split("_h")[0]
+        if img_name not in train_img_names:
+            base_val_data["images"].append(img)
+            horizon_img_ids.append(img["id"])
+            print(f"{img_name} picked and saved to base_det_data.")
+    # pick the horizon annotations
+    for item in horizon_data["annotations"]:
+        if item["image_id"] not in horizon_img_ids:
+            base_val_data["annotations"].append(item)
+            print(f"annotation:{item['id']} picked and saved to base_det_data.")
+    # pick the vertical images
+    vertical_img_ids = []
+    for img in vertical_data["images"]:
+        img_name = img["file_name"].split(".")[0]
+        img_name = img_name.split("_v")[0]
+        if img_name not in train_img_names:
+            base_val_data["images"].append(img)
+            vertical_img_ids.append(img["id"])
+            print(f"{img_name} picked and saved to base_det_data.")
+    # pick the vertical annotations
+    for item in vertical_data["annotations"]:
+        if item["image_id"] not in vertical_img_ids:
+            base_val_data["annotations"].append(item)
+            print(f"annotation:{item['id']} picked and saved to base_det_data.")
+    # save the augmented train data
+    augmented_val_file = "/share/zlh/cv_task/annotations/aug_val_det_data.json"
+    with open(augmented_val_file, "w") as f:
+        json.dump(base_val_data, f)
+        print(f"{augmented_val_file} saved.")
+
+
 if __name__ == "__main__":
-    class_file = "dataset/classes.txt"
-    images_path = "dataset/images"
-    anno_path = "dataset/labels"
+    class_file = "/share/zlh/cv_task_ver/classes.txt"
+    images_path = "/share/zlh/cv_task_ver/images"
+    anno_path = "/share/zlh/cv_task_ver/labels"
 
     # categories = generate_categories(class_file)
     # for item in categories:
@@ -156,16 +281,35 @@ if __name__ == "__main__":
     #     "categories": categories
     # }
 
-    json_path = "dataset/det_data.json"
+    json_path = "/share/zlh/cv_task_ver/det_data.json"
     # with open(json_path, "w") as f:
     #     json.dump(det_data, f)
     # print(f"{json_path} saved!")
 
     # split_train_val_data(json_path)
-    val_path = "dataset/annotations/val_det_data.json"
-    with open(val_path) as f:
-        val_data = json.load(f)
-    val_images = val_data["images"]
-    with open("val.txt", "w") as f:
-        for img in val_images:
-            f.write(img["file_name"] + "\n")
+    # val_path = "dataset/annotations/val_det_data.json"
+    # with open(val_path) as f:
+    #     val_data = json.load(f)
+    # val_images = val_data["images"]
+    # with open("val.txt", "w") as f:
+    #     for img in val_images:
+    #         f.write(img["file_name"] + "\n")
+
+    # horizon = "/share/zlh/cv_task_ver/"
+    # image_dir = horizon + "images"
+    # label_dir = horizon + "labels"
+    # rename_files(image_dir, "v")
+    # rename_files(label_dir, "v")
+
+    base_train = "/share/zlh/cv_task/annotations/train_det_data.json"
+    base_val = "/share/zlh/cv_task/annotations/val_det_data.json"
+    horizon = "/share/zlh/cv_task_hor/horizon_det_data.json"
+    vertical = "/share/zlh/cv_task_ver/vertical_det_data.json"
+    aug = "/share/zlh/cv_task/annotations/aug_train_det_data.json"
+    # with open(aug) as f:
+    #     data = json.load(f)
+    # print(len(data["annotations"]))
+    # print(len(data["images"]))
+
+    # pick_flip_images(base, horizon, vertical)
+    pick_flip_test_images(base_train, base_val, horizon, vertical)
