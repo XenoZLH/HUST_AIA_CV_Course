@@ -54,7 +54,7 @@ NVIDA GeForce GTX TITAN X
 python val.py
 ```
 ### 验证效果
-当采用[yolov5m6.yaml](models/hub/yolov8m.yaml)配置文件进行网络参数的配置，载入预训练模型[yolov5m6.pt](yolov8m.pt)得到的训练效果
+当采用默认配置文件进行网络参数的配置，载入预训练模型[yolov8m.pt](https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8m.pt)得到的训练效果
 | Class | Images | Instances | P | R | mAP<sub>50</sub> | mAP<sub>50-95</sub> 
 | -- | -- | -- | -- | -- | -- | -- |
 | all | 41 | 197 | 0.893 | 0.862 | 0.928 | 0.681 |

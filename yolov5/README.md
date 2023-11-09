@@ -54,7 +54,7 @@ NVIDA GeForce GTX TITAN X
 python val.py
 ```
 ### 验证效果
-当采用[yolov5m6.yaml](models/hub/yolov5m6.yaml)配置文件进行网络参数的配置，载入预训练模型[yolov5m6.pt](yolov5m6.pt),采用中等数据增强超参数[hyp.scratch-med.yaml](data/hyps/hyp.scratch-med.yaml)得到的训练效果
+当采用[yolov5m6.yaml](models/hub/yolov5m6.yaml)配置文件进行网络参数的配置，载入预训练模型[yolov5m6.pt](https://github.com/ultralytics/yolov5/releases/download/v7.0/yolov5m6.pt),采用中等数据增强超参数[hyp.scratch-med.yaml](data/hyps/hyp.scratch-med.yaml)得到的训练效果
 | Class | Images | Instances | P | R | mAP<sub>50</sub> | mAP<sub>50-95</sub> 
 | -- | -- | -- | -- | -- | -- | -- |
 | all | 41 | 197 | 0.96 | 0.475 | 0.756 | 0.593 |
